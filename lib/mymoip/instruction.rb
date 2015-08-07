@@ -51,6 +51,9 @@ module MyMoip
                   if installments[:forward_taxes]
                     n5.Repassar(installments[:forward_taxes])
                   end
+                  if installments[:receive_in_installments]
+                    n5.Recebimento('Parcelado')
+                  end
                   n5.Juros(installments[:fee])
                 end
               end
