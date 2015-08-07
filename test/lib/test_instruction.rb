@@ -4,7 +4,7 @@ class TestInstruction < Test::Unit::TestCase
   def test_getters_for_attributes
     payer       = Fixture.payer
     commissions = [Fixture.commission]
-    installments = [{min: 2, max: 12, forward_taxes: true, fee: 1.99}]
+    installments = [{min: 2, max: 12, forward_taxes: true, fee: 1.99, receive_in_installments: true}]
     instruction = MyMoip::Instruction.new(
       id: "some id",
       payment_reason: "some payment_reason",
@@ -42,19 +42,19 @@ class TestInstruction < Test::Unit::TestCase
   def test_xml_format
     payer       = Fixture.payer
     instruction = Fixture.instruction(payer: payer)
-    
+
     expected_format = <<XML
 <EnviarInstrucao><InstrucaoUnica TipoValidacao=\"Transparente\"><Razao>some payment_reason</Razao><Valores><Valor moeda=\"BRL\">100.00</Valor><Valor moeda=\"BRL\">200.00</Valor></Valores><IdProprio>your_own_instruction_id</IdProprio><Parcelamentos><Parcelamento><MinimoParcelas>2</MinimoParcelas><MaximoParcelas>12</MaximoParcelas><Repassar>true</Repassar><Juros>1.99</Juros></Parcelamento></Parcelamentos><Pagador><Nome>Juquinha da Rocha</Nome><Email>juquinha@rocha.com</Email><IdPagador>your_own_payer_id</IdPagador><EnderecoCobranca><Logradouro>Felipe Neri</Logradouro><Numero>406</Numero><Complemento>Sala 501</Complemento><Bairro>Auxiliadora</Bairro><Cidade>Porto Alegre</Cidade><Estado>RS</Estado><Pais>BRA</Pais><CEP>90440-150</CEP><TelefoneFixo>(51)3040-5060</TelefoneFixo></EnderecoCobranca></Pagador></InstrucaoUnica></EnviarInstrucao>
 XML
     assert_equal expected_format.rstrip, instruction.to_xml
   end
-  
+
   def test_xml_format_with_urls
     payer       = Fixture.payer
     instruction = Fixture.instruction(payer: payer)
     instruction.notification_url = 'http://qwerty.me/nasp'
     instruction.return_url = 'http://return.to.me'
-    
+
     expected_format = <<XML
 <EnviarInstrucao><InstrucaoUnica TipoValidacao=\"Transparente\"><Razao>some payment_reason</Razao><Valores><Valor moeda=\"BRL\">100.00</Valor><Valor moeda=\"BRL\">200.00</Valor></Valores><IdProprio>your_own_instruction_id</IdProprio><Parcelamentos><Parcelamento><MinimoParcelas>2</MinimoParcelas><MaximoParcelas>12</MaximoParcelas><Repassar>true</Repassar><Juros>1.99</Juros></Parcelamento></Parcelamentos><Pagador><Nome>Juquinha da Rocha</Nome><Email>juquinha@rocha.com</Email><IdPagador>your_own_payer_id</IdPagador><EnderecoCobranca><Logradouro>Felipe Neri</Logradouro><Numero>406</Numero><Complemento>Sala 501</Complemento><Bairro>Auxiliadora</Bairro><Cidade>Porto Alegre</Cidade><Estado>RS</Estado><Pais>BRA</Pais><CEP>90440-150</CEP><TelefoneFixo>(51)3040-5060</TelefoneFixo></EnderecoCobranca></Pagador><URLNotificacao>http://qwerty.me/nasp</URLNotificacao><URLRetorno>http://return.to.me</URLRetorno></InstrucaoUnica></EnviarInstrucao>
 XML
@@ -64,16 +64,16 @@ XML
   def test_xml_format_with_installments
     payer        = Fixture.payer
     installments = [
-      {min: 5, max: 10, fee: 2.99}
+      {min: 5, max: 10, fee: 2.99, receive_in_installments: true}
     ]
     instruction  = Fixture.instruction(payer: payer, installments: installments)
-    
+
     expected_format = <<XML
-<EnviarInstrucao><InstrucaoUnica TipoValidacao=\"Transparente\"><Razao>some payment_reason</Razao><Valores><Valor moeda=\"BRL\">100.00</Valor><Valor moeda=\"BRL\">200.00</Valor></Valores><IdProprio>your_own_instruction_id</IdProprio><Parcelamentos><Parcelamento><MinimoParcelas>5</MinimoParcelas><MaximoParcelas>10</MaximoParcelas><Juros>2.99</Juros></Parcelamento></Parcelamentos><Pagador><Nome>Juquinha da Rocha</Nome><Email>juquinha@rocha.com</Email><IdPagador>your_own_payer_id</IdPagador><EnderecoCobranca><Logradouro>Felipe Neri</Logradouro><Numero>406</Numero><Complemento>Sala 501</Complemento><Bairro>Auxiliadora</Bairro><Cidade>Porto Alegre</Cidade><Estado>RS</Estado><Pais>BRA</Pais><CEP>90440-150</CEP><TelefoneFixo>(51)3040-5060</TelefoneFixo></EnderecoCobranca></Pagador></InstrucaoUnica></EnviarInstrucao>
+<EnviarInstrucao><InstrucaoUnica TipoValidacao=\"Transparente\"><Razao>some payment_reason</Razao><Valores><Valor moeda=\"BRL\">100.00</Valor><Valor moeda=\"BRL\">200.00</Valor></Valores><IdProprio>your_own_instruction_id</IdProprio><Parcelamentos><Parcelamento><MinimoParcelas>5</MinimoParcelas><MaximoParcelas>10</MaximoParcelas><Juros>2.99</Juros><Recebimento>Parcelado</Recebimento></Parcelamento></Parcelamentos><Pagador><Nome>Juquinha da Rocha</Nome><Email>juquinha@rocha.com</Email><IdPagador>your_own_payer_id</IdPagador><EnderecoCobranca><Logradouro>Felipe Neri</Logradouro><Numero>406</Numero><Complemento>Sala 501</Complemento><Bairro>Auxiliadora</Bairro><Cidade>Porto Alegre</Cidade><Estado>RS</Estado><Pais>BRA</Pais><CEP>90440-150</CEP><TelefoneFixo>(51)3040-5060</TelefoneFixo></EnderecoCobranca></Pagador></InstrucaoUnica></EnviarInstrucao>
 XML
     assert_equal expected_format.rstrip, instruction.to_xml
   end
-  
+
   def test_xml_format_with_mutiple_installments
     payer        = Fixture.payer
     installments = [
@@ -81,7 +81,7 @@ XML
       {min: 7, max: 12, fee: 2.99}
     ]
     instruction  = Fixture.instruction(payer: payer, installments: installments)
-    
+
     expected_format = <<XML
 <EnviarInstrucao><InstrucaoUnica TipoValidacao=\"Transparente\"><Razao>some payment_reason</Razao><Valores><Valor moeda=\"BRL\">100.00</Valor><Valor moeda=\"BRL\">200.00</Valor></Valores><IdProprio>your_own_instruction_id</IdProprio><Parcelamentos><Parcelamento><MinimoParcelas>2</MinimoParcelas><MaximoParcelas>6</MaximoParcelas><Juros>1.99</Juros></Parcelamento><Parcelamento><MinimoParcelas>7</MinimoParcelas><MaximoParcelas>12</MaximoParcelas><Juros>2.99</Juros></Parcelamento></Parcelamentos><Pagador><Nome>Juquinha da Rocha</Nome><Email>juquinha@rocha.com</Email><IdPagador>your_own_payer_id</IdPagador><EnderecoCobranca><Logradouro>Felipe Neri</Logradouro><Numero>406</Numero><Complemento>Sala 501</Complemento><Bairro>Auxiliadora</Bairro><Cidade>Porto Alegre</Cidade><Estado>RS</Estado><Pais>BRA</Pais><CEP>90440-150</CEP><TelefoneFixo>(51)3040-5060</TelefoneFixo></EnderecoCobranca></Pagador></InstrucaoUnica></EnviarInstrucao>
 XML
@@ -233,7 +233,7 @@ XML
 
   def test_validate_url
     subject = Fixture.instruction
-    assert subject.valid?    
+    assert subject.valid?
 
     subject.notification_url = 'ftp://sdfsdfs.com'
     subject.return_url = 'xxftpsdfsdfs.com'
