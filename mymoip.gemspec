@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'mymoip/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "mymoip"
+  spec.name          = "edools_mymoip"
   spec.version       = MyMoip::VERSION
-  spec.authors       = ["Irio Irineu Musskopf Junior"]
-  spec.email         = ["iirineu@gmail.com"]
+  spec.authors       = ["Vinicius Magalhaes"]
+  spec.email         = ["viniciusmkm@gmail.com"]
   spec.description   = %q{The easier way to use Moip's transparent checkout.}
   spec.summary       = %q{MoIP transactions in a gem to call your own.}
-  spec.homepage      = "https://github.com/Irio/mymoip"
+  spec.homepage      = "https://github.com/Edools/mymoip"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
